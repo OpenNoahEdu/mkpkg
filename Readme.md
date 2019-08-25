@@ -9,3 +9,7 @@
 ## Usage
 
 	./src/mkpkg example/cfg/write-uboot_original.cfg
+
+## TODO
+
+CRC32校验值看起来和原版不一样。
