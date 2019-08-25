@@ -1,0 +1,39 @@
+#!/bin/sh
+TOPDIR=`pwd`
+#cd $TOPDIR/temp
+#./mkinstall
+#cd $TOPDIR/opt/QtPalmtop
+#if [ -e $TOPDIR/temp/ap.tar.gz ]
+#then
+#	tar vfzx $TOPDIR/temp/ap.tar.gz
+#fi
+cd $TOPDIR
+
+find -iname "vssver.scc" | xargs rm -fr {}
+find -iname "Makefile" | xargs rm -fr {}
+find -iname "Readme" | xargs rm -fr {}
+find -iname "*.a" | xargs rm -fr {}
+/opt/mipseltools-gcc4-lnx26/bin/mipsel-linux-strip opt/QtPalmtop/bin/* > ./.stripinfo
+/opt/mipseltools-gcc4-lnx26/bin/mipsel-linux-strip opt/QtPalmtop/lib/* >> ./.stripinfo
+
+if [ "$1" != "" ]
+then
+	echo $1 > data/.version
+	echo $1 > opt/.version
+fi
+
+./mkfs.ubifs -r /home/np1300/release/Settings -m 2048 -e 258048 -c 48 -o Settings.img
+./ubirefimg  Settings.img Settings.ref
+
+./mkfs.ubifs -r /home/np1300/release/opt -m 2048 -e 258048 -c 680 -o opt.img
+./ubirefimg  opt.img opt.ref
+
+./mkfs.ubifs -r /home/np1300/release/data -m 2048 -e 258048 -c 600 -o data.img
+./ubirefimg  data.img data.ref
+
+./mkfs.ubifs -r /home/np1300/release/UsrFS -m 2048 -e 258048 -c 48 -o UsrFS.img
+./ubirefimg  UsrFS.img UsrFS.ref
+
+./mkpkg pkg.cfg
+
+mv np1300_00000001.bin upgrade.bin
