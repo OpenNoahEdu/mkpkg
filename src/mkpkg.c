@@ -193,7 +193,7 @@ int main(int argc, const char **argv)
                     item->fstype = pkg_item_table[i].fstype;
                     item->checksum = checksum(pkg_item_table[i].file, pkg_item_table[i].fstype);
                     memset(item->unset, 0, sizeof(item->unset));
-                    memcpy(item->dev, pkg_item_table[i].dev, 11);
+                    memcpy(item->dev, pkg_item_table[i].dev, 12);
                     printf("\n include = %d ", pkg_item_table[i].include);
                     printf("\n file = %s ", pkg_item_table[i].file);
                     printf("\n pkg_item_len = %d ", pkg_item_table[i].len);
