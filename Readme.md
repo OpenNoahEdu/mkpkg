@@ -8,4 +8,4 @@
 
 ## Usage
 
-	./src/mkpkg config.ini
+	./src/mkpkg example/cfg/write-uboot_original.cfg
