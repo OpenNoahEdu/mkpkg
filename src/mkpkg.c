@@ -6,8 +6,8 @@
 #include "crc32.h"
 #include "checksum.h"
 
-struct pkg_item // length 1092
-{
+struct
+{                      // length 1092
     int32_t len;       // length 4
     int32_t unknow_0;  // length 4
     int32_t ver;       // length 4      dword_804B768
@@ -18,7 +18,7 @@ struct pkg_item // length 1092
     char dev[0x2Cu];   // length 44     dword_804BB78
 } pkg_item_table[256]; // length 0x44400 = 1092 * 256
 
-struct pkg_fstype
+struct
 {
     char *name;
     int32_t id;
@@ -35,22 +35,21 @@ struct pkg_fstype
     {NULL, 0},
 };
 
-struct pkg_file_header_item_t // length 64
-{
-    uint32_t len;      // length 4
-    uint32_t offset;   // length 4
-    int32_t ver;       // length 4
-    int32_t fstype;    // length 4
-    uint32_t checksum; // length 4
-    char dev[12];      // length 12
-    char unset[32];    // length 32
-};
 struct pkg_file_header_t
-{                                           // length 2048 0x800u
-    int64_t tag;                            // length 8
-    int32_t ver;                             // length 4
-    char unset[64 - 8 - 4];             // length 52
-    struct pkg_file_header_item_t item[31]; // length 64 * 31 = 1984
+{                           // length 2048 0x800u
+    int64_t tag;            // length 8
+    int32_t ver;            // length 4
+    char unset[64 - 8 - 4]; // length 52
+    struct
+    {                      // length 64
+        uint32_t len;      // length 4
+        uint32_t offset;   // length 4
+        int32_t ver;       // length 4
+        int32_t fstype;    // length 4
+        uint32_t checksum; // length 4
+        char dev[12];      // length 12
+        char unset[32];    // length 32
+    } item[31];            // length 64 * 31 = 1984
 } pkg_file_header;
 
 int32_t seed = 0x55;
@@ -59,18 +58,6 @@ unsigned int myrand()
 {
     seed = 0x41C64E6D * seed + 12345;
     return ((unsigned int)seed >> 16) & 0x7FFF;
-}
-
-signed int is_unmap_block(int a1)
-{
-    signed int i; // [esp+10h] [ebp-4h]
-
-    for (i = 0; i <= 258047; ++i)
-    {
-        if (*(char *)(a1 + i) != -1)
-            return 0;
-    }
-    return 1;
 }
 
 int ora_buf(char *buffer, int size)
@@ -183,17 +170,16 @@ int main(int argc, const char **argv)
             int offset = 2048;
             for (int i = 0; i < 31; ++i)
             {
-                struct pkg_file_header_item_t *item = pkg_file_header.item + i;
                 if (pkg_item_table[i].include && pkg_item_table[i].len && pkg_item_table[i].file && pkg_item_table[i].file != 10)
                 {
-                    item->len = pkg_item_table[i].len;
-                    item->offset = offset;
+                    pkg_file_header.item[i].len = pkg_item_table[i].len;
+                    pkg_file_header.item[i].offset = offset;
                     offset += pkg_item_table[i].len;
-                    item->ver = pkg_item_table[i].ver;
-                    item->fstype = pkg_item_table[i].fstype;
-                    item->checksum = checksum(pkg_item_table[i].file, pkg_item_table[i].fstype);
-                    memset(item->unset, 0, sizeof(item->unset));
-                    memcpy(item->dev, pkg_item_table[i].dev, 12);
+                    pkg_file_header.item[i].ver = pkg_item_table[i].ver;
+                    pkg_file_header.item[i].fstype = pkg_item_table[i].fstype;
+                    pkg_file_header.item[i].checksum = checksum(pkg_item_table[i].file, pkg_item_table[i].fstype);
+                    memset(pkg_file_header.item[i].unset, 0, sizeof(pkg_file_header.item[i].unset));
+                    memcpy(pkg_file_header.item[i].dev, pkg_item_table[i].dev, 12);
                     printf("\n include = %d ", pkg_item_table[i].include);
                     printf("\n file = %s ", pkg_item_table[i].file);
                     printf("\n pkg_item_len = %d ", pkg_item_table[i].len);
@@ -204,7 +190,7 @@ int main(int argc, const char **argv)
                 }
                 else
                 {
-                    item->len = 0;
+                    pkg_file_header.item[i].len = 0;
                 }
             }
             rewind(s);

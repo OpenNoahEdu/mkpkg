@@ -2,6 +2,18 @@
 #include <stdio.h>
 #include "checksum.h"
 
+signed int is_unmap_block(int a1)
+{
+    signed int i; // [esp+10h] [ebp-4h]
+
+    for (i = 0; i <= 258047; ++i)
+    {
+        if (*(char *)(a1 + i) != -1)
+            return 0;
+    }
+    return 1;
+}
+
 uint32_t checksum(const char *filename, int32_t fstype)
 {
     unsigned int v2; // ST34_4
