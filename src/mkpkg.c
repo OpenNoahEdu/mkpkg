@@ -35,7 +35,7 @@ struct
     {NULL, 0},
 };
 
-struct pkg_file_header_t
+struct
 {                           // length 2048 0x800u
     int64_t tag;            // length 8
     int32_t ver;            // length 4
@@ -62,14 +62,12 @@ unsigned int myrand()
 
 int ora_buf(char *buffer, int size)
 {
-    int result; // eax
-    int i;      // [esp+Ch] [ebp-4h]
+    int i;
     for (i = 0; i < size; ++i)
     {
-        result = i;
-        *(buffer + i) = 2 * (*(buffer + i) & 0x55) | ((*(buffer + i) & 0xAA) >> 1);
+        buffer[i] = ((buffer[i] & 0x55) << 1) | ((buffer[i] & 0xAA) >> 1);
     }
-    return result;
+    return i;
 }
 
 int main(int argc, const char **argv)
